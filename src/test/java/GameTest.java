@@ -1,144 +1,108 @@
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class GameTest {
+    String p1WinMsg = "Player 1 win!";
+    String p2WinMsg = "Player 2 win!";
+    String drawMsg = "Draw!";
+    String invalidMsg = "Bad Choice!";
 
-    @Test
-    void p1InvalidInput() {
-        Game g = new Game();
-
-        Exception exception1 = assertThrows(IllegalArgumentException.class, () -> g.setP1RPS("peko"));
-        String expectedMsg = "Bad Choice!";
-        String actualMsg = exception1.getMessage();
-        assertEquals(expectedMsg, actualMsg);
+    static Stream<Arguments> allP1WinCases() {
+        return  Stream.of(
+                Arguments.of("rock", "scissors"),
+                Arguments.of("paper", "rock"),
+                Arguments.of("scissors", "paper")
+        );
+    }
+    static Stream<Arguments> allP1LoseCases() {
+        return  Stream.of(
+                Arguments.of("rock", "paper"),
+                Arguments.of("paper", "scissors"),
+                Arguments.of("scissors", "rock")
+        );
+    }
+    static Stream<Arguments> allDrawCases() {
+        return  Stream.of(
+                Arguments.of("rock", "rock"),
+                Arguments.of("paper", "paper"),
+                Arguments.of("scissors", "scissors")
+        );
+    }
+    static Stream<Arguments> allValidInput() {
+        return  Stream.of(
+                Arguments.of("rock"),
+                Arguments.of("paper"),
+                Arguments.of("scissors")
+        );
+    }
+    static Stream<Arguments> allInvalidInput() {
+        return  Stream.of(
+                Arguments.of("A"),
+                Arguments.of("Peko"),
+                Arguments.of("Ahoy")
+        );
     }
 
-    @Test
-    void p2InvalidInput() {
+    @ParameterizedTest
+    @MethodSource("allP1WinCases")
+    public void allP1WinCasesTest(String p1RPS, String p2RPS) {
         Game g = new Game();
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> g.setP2RPS("peko"));
-        String expectedMsg = "Bad Choice!";
-        String actualMsg = exception.getMessage();
-        assertEquals(expectedMsg, actualMsg);
+        g.setP1RPS(p1RPS);
+        g.setP2RPS(p2RPS);
+        assertEquals(p1WinMsg, g.whoWin());
     }
-
-    @Test
-    void setP1RPS() {
+    @ParameterizedTest
+    @MethodSource("allP1LoseCases")
+    public void allP1LoseCasesTest(String p1RPS, String p2RPS) {
         Game g = new Game();
-        g.setP1RPS("paper");
-        assertEquals("paper", g.getP1RPS());
+
+        g.setP1RPS(p1RPS);
+        g.setP2RPS(p2RPS);
+        assertEquals(p2WinMsg, g.whoWin());
     }
-
-    @Test
-    void setP2RPS() {
+    @ParameterizedTest
+    @MethodSource("allDrawCases")
+    public void allDrawCasesTest(String p1RPS, String p2RPS) {
         Game g = new Game();
-        g.setP2RPS("scissors");
-        assertEquals("scissors", g.getP2RPS());
+
+        g.setP1RPS(p1RPS);
+        g.setP2RPS(p2RPS);
+        assertEquals(drawMsg, g.whoWin());
     }
-
-    @Test
-    void getP1RPS() {
+    @ParameterizedTest
+    @MethodSource("allValidInput")
+    public void allP1ValidInputTest(String RPS) {
         Game g = new Game();
-        g.setP1RPS("rock");
-        assertEquals("rock", g.getP1RPS());
+
+        assertDoesNotThrow(() -> g.setP1RPS(RPS));
     }
-
-    @Test
-    void getP2RPS() {
+    @ParameterizedTest
+    @MethodSource("allValidInput")
+    public void allP2ValidInputTest(String RPS) {
         Game g = new Game();
-        g.setP2RPS("paper");
-        assertEquals("paper", g.getP2RPS());
+
+        assertDoesNotThrow(() -> g.setP2RPS(RPS));
     }
-
-    @Test
-    void p1LoseByRock() {
+    @ParameterizedTest
+    @MethodSource("allInvalidInput")
+    public void allP1InvalidInputTest(String RPS) {
         Game g = new Game();
 
-        String expectedMsg = "Player 2 win!";
-        g.setP1RPS("rock");
-        g.setP2RPS("paper");
-        assertEquals(expectedMsg, g.whoWin());
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> g.setP2RPS(RPS));
+        assertEquals(invalidMsg, exception.getMessage());
     }
-
-    @Test
-    void p1LoseByPaper() {
+    @ParameterizedTest
+    @MethodSource("allInvalidInput")
+    public void allP2InvalidInputTest(String RPS) {
         Game g = new Game();
 
-        String expectedMsg = "Player 2 win!";
-        g.setP1RPS("paper");
-        g.setP2RPS("scissors");
-        assertEquals(expectedMsg, g.whoWin());
-    }
-
-    @Test
-    void p1LoseByScissors() {
-        Game g = new Game();
-
-        String expectedMsg = "Player 2 win!";
-        g.setP1RPS("scissors");
-        g.setP2RPS("rock");
-        assertEquals(expectedMsg, g.whoWin());
-    }
-
-    @Test
-    void p1WinByRock() {
-        Game g = new Game();
-
-        String expectedMsg = "Player 1 win!";
-        g.setP1RPS("rock");
-        g.setP2RPS("scissors");
-        assertEquals(expectedMsg, g.whoWin());
-    }
-
-    @Test
-    void p1WinByPaper() {
-        Game g = new Game();
-
-        String expectedMsg = "Player 1 win!";
-        g.setP1RPS("paper");
-        g.setP2RPS("rock");
-        assertEquals(expectedMsg, g.whoWin());
-    }
-
-    @Test
-    void p1WinByScissors() {
-        Game g = new Game();
-
-        String expectedMsg = "Player 1 win!";
-        g.setP1RPS("scissors");
-        g.setP2RPS("paper");
-        assertEquals(expectedMsg, g.whoWin());
-    }
-
-    @Test
-    void DrawByRock() {
-        Game g = new Game();
-
-        String expectedMsg = "Draw!";
-        g.setP1RPS("rock");
-        g.setP2RPS("rock");
-        assertEquals(expectedMsg, g.whoWin());
-    }
-
-    @Test
-    void DrawByPaper() {
-        Game g = new Game();
-
-        String expectedMsg = "Draw!";
-        g.setP1RPS("paper");
-        g.setP2RPS("paper");
-        assertEquals(expectedMsg, g.whoWin());
-    }
-
-    @Test
-    void DrawByScissors() {
-        Game g = new Game();
-
-        String expectedMsg = "Draw!";
-        g.setP1RPS("scissors");
-        g.setP2RPS("scissors");
-        assertEquals(expectedMsg, g.whoWin());
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> g.setP2RPS(RPS));
+        assertEquals(invalidMsg, exception.getMessage());
     }
 }
